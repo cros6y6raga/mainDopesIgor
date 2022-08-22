@@ -1,52 +1,111 @@
-import React, {useEffect, useState} from 'react';
-import logo from './logo.svg';
+import React, {useState} from 'react';
 import './App.css';
-import {Button} from './components/Button';
+import {Todolist} from './Todolist';
+import {v1} from 'uuid';
 
-type getType = {
-    'userId': number,
-    'id': number,
-    'title': string,
-    'body': string
+export type FilterValuesType = 'all' | 'active' | 'completed';
+type todolistsType = {
+    id: string,
+    title: string,
+    filter: FilterValuesType
 }
 
 function App() {
-    const [get, setGet] = useState<Array<getType>>([])
-    const getRequestHandler = () => {
-        setGet([])
+    let todolistID1 = v1();
+    let todolistID2 = v1();
+
+    let [todolists, setTodolists] = useState<Array<todolistsType>>([
+        {id: todolistID1, title: 'What to learn', filter: 'all'},
+        {id: todolistID2, title: 'What to buy', filter: 'all'},
+    ])
+
+    let [tasks, setTasks] = useState({
+        [todolistID1]: [
+            {id: v1(), title: 'HTML&CSS', isDone: true},
+            {id: v1(), title: 'JS', isDone: true},
+            {id: v1(), title: 'ReactJS', isDone: false},
+            {id: v1(), title: 'Rest API', isDone: false},
+            {id: v1(), title: 'GraphQL', isDone: false},
+        ],
+        [todolistID2]: [
+            {id: v1(), title: 'HTML&CSS2', isDone: true},
+            {id: v1(), title: 'JS2', isDone: true},
+            {id: v1(), title: 'ReactJS2', isDone: false},
+            {id: v1(), title: 'Rest API2', isDone: false},
+            {id: v1(), title: 'GraphQL2', isDone: false},
+        ]
+    });
+
+    // let [tasks, setTasks] = useState([
+    //     {id: v1(), title: "HTML&CSS", isDone: true},
+    //     {id: v1(), title: "JS", isDone: true},
+    //     {id: v1(), title: "ReactJS", isDone: false},
+    //     {id: v1(), title: "Rest API", isDone: false},
+    //     {id: v1(), title: "GraphQL", isDone: false},
+    // ]);
+    // let [filter, setFilter] = useState<FilterValuesType>("all");
+
+    function removeTask(todolistID: string, taskId: string) {
+        setTasks({...tasks, [todolistID2]: tasks[todolistID]})
+        // let filteredTasks = tasks.filter(t => t.id != id);
+        // setTasks(filteredTasks);
     }
-    useEffect(()=>{
-        fetch('https://jsonplaceholder.typicode.com/posts')
-            .then(response => response.json())
-            .then(json => setGet(json))
-    },[])
+
+    function addTask(title: string) {
+        // let task = {id: v1(), title: title, isDone: false};
+        // let newTasks = [task, ...tasks];
+        // setTasks(newTasks);
+    }
+
+    function changeStatus(taskId: string, isDone: boolean) {
+        // let task = tasks.find(t => t.id === taskId);
+        // if (task) {
+        //     task.isDone = isDone;
+        // }
+        //
+        // setTasks([...tasks]);
+    }
+
+
+    // let tasksForTodolist = tasks[todolistID1];
+    //
+    // if (filter === 'active') {
+    //     tasksForTodolist = tasks.filter(t => t.isDone === false);
+    // }
+    // if (filter === 'completed') {
+    //     tasksForTodolist = tasks.filter(t => t.isDone === true);
+    // }
+
+    function changeFilter(value: FilterValuesType) {
+        // setFilter(value);
+    }
+
+
     return (
         <div className="App">
-            <Button nickName={'CleanPage'} callBack={getRequestHandler}/>
-            <p></p>
-            {get.map((el) =>{
-                return(
-                    <li>
-                     <span>{el.id}</span>
-                     <span>{el.userId}</span>
-                     <span>{el.title}</span>
-                    </li>
+            {todolists.map(el => {
+                let tasksForTodolist = tasks[el.id];
+
+                if (el.filter === 'active') {
+                    tasksForTodolist = tasks[el.id].filter(t => t.isDone === false);
+                }
+                if (el.filter === 'completed') {
+                    tasksForTodolist = tasks[el.id].filter(t => t.isDone === true);
+                }
+                return (
+                    <Todolist
+                        key={el.id}
+                        todolistID={el.id}
+                        title="What to learn"
+                        tasks={tasksForTodolist}
+                        removeTask={removeTask}
+                        changeFilter={changeFilter}
+                        addTask={addTask}
+                        changeTaskStatus={changeStatus}
+                        filter={el.filter}
+                    />
                 )
             })}
-            {/*<header className="App-header">*/}
-            {/*  <img src={logo} className="App-logo" alt="logo" />*/}
-            {/*  <p>*/}
-            {/*    Edit <code>src/App.tsx</code> and save to reload.*/}
-            {/*  </p>*/}
-            {/*  <a*/}
-            {/*    className="App-link"*/}
-            {/*    href="https://reactjs.org"*/}
-            {/*    target="_blank"*/}
-            {/*    rel="noopener noreferrer"*/}
-            {/*  >*/}
-            {/*    Learn React*/}
-            {/*  </a>*/}
-            {/*</header>*/}
         </div>
     );
 }
